@@ -19,7 +19,7 @@ DEVICE=ginkgo
 #VERSION=
 
 # Kernel Defconfig
-DEFCONFIG=${DEVICE}-perf_defconfig
+DEFCONFIG=vendor/ginkgo-perf_defconfig
 
 # Files
 IMAGE=$(pwd)/out/arch/arm64/boot/Image.gz-dtb
