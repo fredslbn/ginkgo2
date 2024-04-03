@@ -43,7 +43,7 @@ ZIPNAME="SUPER.KERNEL.GINKGO-(clanglinaro)-$(TZ=Asia/Jakarta date +"%Y%m%d-%H%M"
 ##----------------------------------------------------------##
 # Specify compiler.
 
-COMPILER=clang18-7
+COMPILER=prelude
 
 ##----------------------------------------------------------##
 # Specify Linker
@@ -54,15 +54,15 @@ LINKER=ld.lld
 ##----------------------------------------------------------##
 # Clone ToolChain
 function cloneTC() {
-    
-    if [ $COMPILER = "clang14-7" ];
-	then
-    wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r450784e.tar.gz && mkdir clang && tar -xzvf clang-r450784e.tar.gz -C clang/
+
+    if [ $COMPILER = "prelude" ];
+    then
+    git clone --depth=1 https://gitlab.com/jjpprrrr/prelude-clang.git -b master clang
     export KERNEL_CLANG_PATH="${KERNEL_DIR}/clang"
     export KERNEL_CLANG="clang"
     export PATH="$KERNEL_CLANG_PATH/bin:$PATH"
-    CLANG_VERSION=$(clang --version | grep version | sed "s|clang version ||")
-	
+    CLANG_VERSION=$(clang --version | grep version | sed "s|clang version ||")	
+    	
     wget https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/aarch64-linux-gnu/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz && tar -xf gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz
     mv gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu gcc64
     export KERNEL_CCOMPILE64_PATH="${KERNEL_DIR}/gcc64"
