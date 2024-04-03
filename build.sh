@@ -5,7 +5,7 @@
 # Copyright (C) 2023 Tejas Singh.
 
 SECONDS=0 # builtin bash timer
-ZIPNAME="Cuh-ginkgo-v1.8-KSU-$(TZ=Asia/Kolkata date +"%Y%m%d-%H%M").zip"
+ZIPNAME="SUPER.KERNEL.GINKGO-(clang-gcc)-$(TZ=Asia/Jakarta date +"%Y%m%d-%H%M").zip"
 TC_DIR="$HOME/tc/prelude-clang"
 GCC_64_DIR="$HOME/tc/aarch64-linux-android-4.9"
 GCC_32_DIR="$HOME/tc/arm-linux-androideabi-4.9"
@@ -18,7 +18,7 @@ sudo -E apt-get -qq update
 sudo -E apt-get -qq install bc python2 python3 python-is-python3
 
 # KernelSU
-curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -
+git submodule update --init --recursive --remote
 
 # Check for essentials
 if ! [ -d "${TC_DIR}" ]; then

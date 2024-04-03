@@ -1,0 +1,27 @@
+name: Compile Kernel
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+       - name: Configuring git environment.
+         run: |
+            git config --global user.name fredslbn
+            git config --global user.email fh.silaban@gmail.com
+
+       - name: Building Kernel.
+         run: |
+             git clone --depth 1 https://github.com/fredslbn/ginkgo2.git -b main kernel
+             cd kernel
+             chmod 777 build.sh
+             ./build.sh
+
+       - name: Uploading ZIP.
+         run: |
+             cd kernel
+             curl -T *.zip https://oshi.at && echo ""
+             
