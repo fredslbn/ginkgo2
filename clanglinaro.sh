@@ -76,7 +76,7 @@ function cloneTC() {
     
     elif [ $COMPILER = "clang18-7" ];
 	then
-	wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r510928.tar.gz && mkdir clang && tar -xzf clang-r510928.tar.gz -C clang/
+	wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r530567.tar.gz && mkdir clang && tar -xzf clang-r530567.tar.gz -C clang/
     export KERNEL_CLANG_PATH="${KERNEL_DIR}/clang"
     export KERNEL_CLANG="clang"
     export PATH="$KERNEL_CLANG_PATH/bin:$PATH"
