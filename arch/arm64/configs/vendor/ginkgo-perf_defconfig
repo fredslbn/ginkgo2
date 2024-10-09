@@ -6,16 +6,19 @@ CONFIG_KSU=y
 
 ## SUSFS4KSU
 CONFIG_KSU_SUSFS=y
+## KSU non-kprobe hook patches applied, 
+## then you have to DISABLE the CONFIG_KSU_SUSFS_SUS_SU option.
+# CONFIG_KSU_SUSFS_SUS_SU is not set
 CONFIG_INIT_STACK_ALL_ZERO=y
-
-##
-# CONFIG_KPROBES is not set
-# CONFIG_HAVE_KPROBES is not set
-# CONFIG_KPROBE_EVENTS is not set
 
 ##
 CONFIG_LOCALVERSION=""
 CONFIG_LOCALVERSION_AUTO=n
+
+## disable kprobe
+# CONFIG_KPROBES is not set
+# CONFIG_HAVE_KPROBES is not set
+# CONFIG_KPROBE_EVENTS is not set
 
 ##
 CONFIG_THERMAL_SWITCH=y

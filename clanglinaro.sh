@@ -43,7 +43,7 @@ ZIPNAME="SUPER.KERNEL.GINKGO-(clang-linaro)-$(TZ=Asia/Jakarta date +"%Y%m%d-%H%M
 ##----------------------------------------------------------##
 # Specify compiler.
 
-COMPILER=clang18-7
+COMPILER=weebx-clang
 
 ##----------------------------------------------------------##
 # Specify Linker
@@ -95,6 +95,27 @@ function cloneTC() {
     export KERNEL_CCOMPILE32="arm-linux-gnueabihf-"
     export PATH="$KERNEL_CCOMPILE32_PATH/bin:$PATH"
 
+	elif [ $COMPILER = "weebx-clang" ];
+	then
+	wget https://github.com/XSans0/WeebX-Clang/releases/download/WeebX-Clang-19.1.2-release/WeebX-Clang-19.1.2.tar.gz && mkdir clang && tar -xzf WeebX-Clang-19.1.2.tar.gz -C clang/
+    export KERNEL_CLANG_PATH="${KERNEL_DIR}/clang"
+    export KERNEL_CLANG="clang"
+    export PATH="$KERNEL_CLANG_PATH/bin:$PATH"
+    CLANG_VERSION=$(clang --version | grep version | sed "s|clang version ||")
+	
+    wget https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/aarch64-linux-gnu/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz && tar -xf gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu.tar.xz
+    mv gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu gcc64
+    export KERNEL_CCOMPILE64_PATH="${KERNEL_DIR}/gcc64"
+    export KERNEL_CCOMPILE64="aarch64-linux-gnu-"
+    export PATH="$KERNEL_CCOMPILE64_PATH/bin:$PATH"
+    GCC_VERSION=$(aarch64-linux-gnu-gcc --version | grep "(GCC)" | sed 's|.*) ||')
+   
+    wget https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/arm-linux-gnueabihf/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf.tar.xz && tar -xf gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf.tar.xz
+    mv gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf gcc32
+    export KERNEL_CCOMPILE32_PATH="${KERNEL_DIR}/gcc32"
+    export KERNEL_CCOMPILE32="arm-linux-gnueabihf-"
+    export PATH="$KERNEL_CCOMPILE32_PATH/bin:$PATH"
+		
     
     fi
 	
