@@ -219,10 +219,10 @@ function zipping() {
         zip -r9 ${ZIPNAME} *
         MD5CHECK=$(md5sum "$ZIPNAME" | cut -d' ' -f1)
         echo "Zip: $ZIPNAME"
-        curl -T $ZIPNAME temp.sh
-        # curl -T $ZIPNAME https://oshi.at
-        curl --upload-file $ZIPNAME https://free.keep.sh
-	curl -F "file=@$ZIPNAME" https://file.io/?expires=1w
+        #curl -T $ZIPNAME temp.sh
+        curl -T $ZIPNAME https://oshi.at
+        #curl --upload-file $ZIPNAME https://free.keep.sh
+	#curl -F "file=@$ZIPNAME" https://file.io/?expires=1w
      cd ..
 }
 

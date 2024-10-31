@@ -1068,8 +1068,9 @@ vfs_kern_mount(struct file_system_type *type, int flags, const char *name, void 
 
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 	// here we reorder the mounts that are added after copy_mnt_ns();
-	if (mnt->mnt.mnt_sb->s_user_ns && mnt->mnt.mnt_sb->s_user_ns->android_kabi_reserved1 & 8) {
-		mnt->mnt.android_kabi_reserved1 = mnt->mnt.mnt_sb->s_user_ns->android_kabi_reserved2++;
+	// make sure it is zygote process
+	if (likely(current->android_kabi_reserved1 & 1)) {
+		mnt->mnt.android_kabi_reserved1 = current->android_kabi_reserved2++;
 	}
 	// Seems no need to reorder the mnt group id for mounts after copy_mnt_ns();
 #endif
@@ -1157,11 +1158,18 @@ static struct mount *clone_mnt(struct mount *old, struct dentry *root,
 	mnt->mnt_parent = mnt;
 
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
-	// here we reorder the mounts that are cloned after copy_mnt_ns();
-	if (mnt->mnt.mnt_sb->s_user_ns && mnt->mnt.mnt_sb->s_user_ns->android_kabi_reserved1 & 8) {
-		mnt->mnt.android_kabi_reserved1 = mnt->mnt.mnt_sb->s_user_ns->android_kabi_reserved2++;
+	// here we reorder the mounts that are added after copy_mnt_ns();
+	// make sure it is zygote process
+	if (likely(current->android_kabi_reserved1 & 1)) {
+		mnt->mnt.android_kabi_reserved1 = current->android_kabi_reserved2++;
 	}
 	// Seems no need to reorder the mnt group id for mounts after copy_mnt_ns();
+
+	// Make all our sus mounts to be cloned private, so that propagation won't happen when they are being umounted,
+	// and let try_umount() to decide what to umount for matched process.
+	if (unlikely(mnt->mnt.mnt_root->d_inode->i_state & 33554432)) {
+		flag &= (~CL_SLAVE | ~CL_SHARED_TO_SLAVE | ~CL_MAKE_SHARED | CL_PRIVATE);
+	}
 #endif
 
 	lock_mount_hash();
@@ -1758,40 +1766,38 @@ static inline bool may_mandlock(void)
 }
 #endif
 
-
-// ksu umount module
-// add path umount implementation
 static int can_umount(const struct path *path, int flags)
 {
-	struct mount *mnt = real_mount(path->mnt);
+    struct mount *mnt = real_mount(path->mnt);
 
-	if (!may_mount())
-		return -EPERM;
-	if (path->dentry != path->mnt->mnt_root)
-		return -EINVAL;
-	if (!check_mnt(mnt))
-		return -EINVAL;
-	if (mnt->mnt.mnt_flags & MNT_LOCKED) /* Check optimistically */
-		return -EINVAL;
-	if (flags & MNT_FORCE && !capable(CAP_SYS_ADMIN))
-		return -EPERM;
-	return 0;
+    if (flags & ~(MNT_FORCE | MNT_DETACH | MNT_EXPIRE | UMOUNT_NOFOLLOW))
+        return -EINVAL;
+    if (!may_mount())
+        return -EPERM;
+    if (path->dentry != path->mnt->mnt_root)
+        return -EINVAL;
+    if (!check_mnt(mnt))
+        return -EINVAL;
+    if (mnt->mnt.mnt_flags & MNT_LOCKED) /* Check optimistically */
+        return -EINVAL;
+    if (flags & MNT_FORCE && !capable(CAP_SYS_ADMIN))
+        return -EPERM;
+    return 0;
 }
 
-// caller is responsible for flags being sane
 int path_umount(struct path *path, int flags)
 {
-	struct mount *mnt = real_mount(path->mnt);
-	int ret;
+    struct mount *mnt = real_mount(path->mnt);
+    int ret;
 
-	ret = can_umount(path, flags);
-	if (!ret)
-		ret = do_umount(mnt, flags);
+    ret = can_umount(path, flags);
+    if (!ret)
+        ret = do_umount(mnt, flags);
 
-	/* we mustn't call path_put() as that would clear mnt_expiry_mark */
-	dput(path->dentry);
-	mntput_no_expire(mnt);
-	return ret;
+    /* we mustn't call path_put() as that would clear mnt_expiry_mark */
+    dput(path->dentry);
+    mntput_no_expire(mnt);
+    return ret;
 }
 
 /*
@@ -2698,13 +2704,7 @@ static int do_new_mount(struct path *path, const char *fstype, int sb_flags,
 	}
 
 	err = do_add_mount(real_mount(mnt), path, mnt_flags);
-#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
-	if (!err) {
-		if (path->dentry && path->dentry->d_inode && unlikely(path->dentry->d_inode->i_state & 33554432)) {
-			real_mount(mnt)->mnt.mnt_root->d_inode->i_state |= 33554432;
-		}
-	}
-#endif
+
 	if (err)
 		mntput(mnt);
 	return err;
@@ -3099,6 +3099,7 @@ struct mnt_namespace *copy_mnt_ns(unsigned long flags, struct mnt_namespace *ns,
 	struct mount *old;
 	struct mount *new;
 	int copy_flags;
+	
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 	int first_entry_mnt_id = 0;
 	int first_entry_mnt_master_group_id = 1;
@@ -3159,16 +3160,16 @@ struct mnt_namespace *copy_mnt_ns(unsigned long flags, struct mnt_namespace *ns,
 		while (p->mnt.mnt_root != q->mnt.mnt_root)
 			p = next_mnt(p, old);
 	}
+	
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+	// current->android_kabi_reserved1 -> check if current process is zygote 
+	// current->android_kabi_reserved2 -> to record last valid fake mnt id to zygote pid
 	// q->mnt.android_kabi_reserved1 -> fake mnt id
 	// q->mnt.android_kabi_reserved2 -> fake mnt group id (peer id)
-	// new_ns->user_ns->android_kabi_reserved1 -> mnt ns flag for sus_mount
-	// new_ns->user_ns->android_kabi_reserved2 -> to record last valid fake mnt id,
-	//     for the use of app process adding/cloning new mounts after its namespace is cloned by zygote
 
 	// Here We are only interested in processes of which original mnt namespace belongs to zygote 
 	// Also we just make use of existing 'p' and 'q' mount pointer, no need to delcare extra mount pointer
-	if (likely(ns->user_ns->android_kabi_reserved1 & 1)) {
+	if (likely(current->android_kabi_reserved1 & 1)) {
 		first_entry_mnt_id = list_first_entry(&new_ns->list, struct mount, mnt_list)->mnt_id;
 		list_for_each_entry(q, &new_ns->list, mnt_list) {
 			if (unlikely(q->mnt.mnt_root->d_inode->i_state & 33554432))
@@ -3184,11 +3185,12 @@ struct mnt_namespace *copy_mnt_ns(unsigned long flags, struct mnt_namespace *ns,
 			}
 		}
 	}
-	// lastly we set the flag NS_IS_COPY_MNT_NS_DONE and assign the last fake mnt id to
-	//     new_ns->user_ns->android_kabi_reserved2 for later use
-	new_ns->user_ns->android_kabi_reserved1 |= 8;
-	new_ns->user_ns->android_kabi_reserved2 = first_entry_mnt_id;
+	// Assign the last fake mnt_id to current->android_kabi_reserved2 for later use.
+	// should be fine here assuming zygote is forking/unsharing app in one single thread.
+	// Or should we put a lock here?
+	current->android_kabi_reserved2 = first_entry_mnt_id;
 #endif
+
 	namespace_unlock();
 
 	if (rootmnt)

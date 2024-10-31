@@ -50,6 +50,7 @@ void generic_fillattr(struct inode *inode, struct kstat *stat)
 		return;
 	}
 #endif
+
 	stat->dev = inode->i_sb->s_dev;
 	stat->ino = inode->i_ino;
 	stat->mode = inode->i_mode;
