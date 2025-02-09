@@ -309,7 +309,6 @@ static int filldir64(struct dir_context *ctx, const char *name, int namlen,
 		return 0;
 	}
 #endif
-
 	buf->error = verify_dirent_name(name, namlen);
 	if (unlikely(buf->error))
 		return buf->error;

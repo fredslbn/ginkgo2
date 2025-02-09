@@ -192,7 +192,6 @@ bypass_orig_flow:
 				seq_printf(m, " propagate_from:%i", dom);
 		}
 #else
-
 		int master = r->mnt_master->mnt_group_id;
 		int dom = get_dominating_id(r, &p->root);
 		seq_printf(m, " master:%i", master);
