@@ -2315,12 +2315,6 @@ struct dentry *__d_lookup(const struct dentry *parent, const struct qstr *name)
 			continue;
 
 #ifdef CONFIG_KSU_SUSFS_SUS_PATH
-		if (dentry->d_inode && unlikely(dentry->d_inode->i_state & 16777216) && likely(current_cred()->user->android_kabi_reserved1 & 16777216)) {
-			continue;
-		}
-#endif
-
-#ifdef CONFIG_KSU_SUSFS_SUS_PATH
 		if (dentry->d_inode && unlikely(dentry->d_inode->i_state & 16777216) && likely(current_cred()->user->android_kabi_reserved2 & 16777216)) {
 			continue;
 		}
