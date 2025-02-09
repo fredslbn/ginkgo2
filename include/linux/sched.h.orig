@@ -1390,10 +1390,6 @@ struct task_struct {
 	struct task_struct		*simple_lmk_next;
 #endif
 
-#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
-	u64 android_kabi_reserved8;
-#endif
-
 #ifdef CONFIG_FUSE_SHORTCIRCUIT
 	int fuse_boost;
 #endif

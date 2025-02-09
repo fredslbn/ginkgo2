@@ -22,6 +22,10 @@
 #include <trace/events/writeback.h>
 #include "internal.h"
 
+#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+extern bool susfs_is_current_ksu_domain(void);
+#endif
+
 /*
  * Inode locking rules:
  *
@@ -1651,6 +1655,11 @@ int generic_update_time(struct inode *inode, struct timespec *time, int flags)
 	}
 #endif
 
+#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+	if (susfs_is_current_ksu_domain()) {
+		return 0;
+	}
+#endif
 	if (flags & S_ATIME)
 		inode->i_atime = *time;
 	if (flags & S_VERSION)
@@ -1677,6 +1686,12 @@ static int update_time(struct inode *inode, struct timespec *time, int flags)
 
 #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
 	if (unlikely(inode->i_state & 67108864)) {
+		return 0;
+	}
+#endif
+
+#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+	if (susfs_is_current_ksu_domain()) {
 		return 0;
 	}
 #endif
@@ -1737,6 +1752,12 @@ void touch_atime(const struct path *path)
 	struct vfsmount *mnt = path->mnt;
 	struct inode *inode = d_inode(path->dentry);
 	struct timespec now;
+
+#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+	if (susfs_is_current_ksu_domain()) {
+		return;
+	}
+#endif
 
 	if (!__atime_needs_update(path, inode, false))
 		return;
