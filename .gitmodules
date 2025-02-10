@@ -1,0 +1,3 @@
+[submodule "ksumagicsusfs"]
+	path = ksumagicsusfs
+	url = https://github.com/missgoin/ksumagicsusfs.git
