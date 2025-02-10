@@ -43,7 +43,7 @@ ZIPNAME="SUPER.KERNEL.GINKGO-(clang-linaro)-$(TZ=Asia/Jakarta date +"%Y%m%d-%H%M
 ##----------------------------------------------------------##
 # Specify compiler.
 
-COMPILER=weebx-clang
+COMPILER=clang18-7
 
 ##----------------------------------------------------------##
 # Specify Linker
