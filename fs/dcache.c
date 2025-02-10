@@ -40,6 +40,10 @@
 #include <linux/ratelimit.h>
 #include <linux/list_lru.h>
 
+#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+#include <linux/susfs_def.h>
+#endif
+
 #include "internal.h"
 #include "mount.h"
 
@@ -2227,10 +2231,11 @@ seqretry:
 				continue;
 
 #ifdef CONFIG_KSU_SUSFS_SUS_PATH
-			if (dentry->d_inode && unlikely(dentry->d_inode->i_state & 16777216) && likely(current_cred()->user->android_kabi_reserved2 & 16777216)) {
+			if (dentry->d_inode && unlikely(dentry->d_inode->i_state & INODE_STATE_SUS_PATH) && likely(current->susfs_task_state & TASK_STRUCT_NON_ROOT_USER_APP_PROC)) {
 				continue;
 			}
 #endif
+
 		}
 		*seqp = seq;
 		return dentry;
@@ -2315,7 +2320,7 @@ struct dentry *__d_lookup(const struct dentry *parent, const struct qstr *name)
 			continue;
 
 #ifdef CONFIG_KSU_SUSFS_SUS_PATH
-		if (dentry->d_inode && unlikely(dentry->d_inode->i_state & 16777216) && likely(current_cred()->user->android_kabi_reserved2 & 16777216)) {
+		if (dentry->d_inode && unlikely(dentry->d_inode->i_state & INODE_STATE_SUS_PATH) && likely(current->susfs_task_state & TASK_STRUCT_NON_ROOT_USER_APP_PROC)) {
 			continue;
 		}
 #endif

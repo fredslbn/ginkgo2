@@ -1390,10 +1390,6 @@ struct task_struct {
 	struct task_struct		*simple_lmk_next;
 #endif
 
-#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
-	u64 android_kabi_reserved8;
-#endif
-
 #ifdef CONFIG_FUSE_SHORTCIRCUIT
 	int fuse_boost;
 #endif
@@ -1408,6 +1404,12 @@ struct task_struct {
 	 * New fields for task_struct should be added above here, so that
 	 * they are included in the randomized portion of task_struct.
 	 */
+	 
+#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+	u64 susfs_task_state;
+	u64 susfs_last_fake_mnt_id;
+#endif
+	 
 	randomized_struct_fields_end
 
 	struct fuse_package *fpack;
