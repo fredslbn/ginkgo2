@@ -89,10 +89,10 @@ function cloneTC() {
     export PATH="$KERNEL_CCOMPILE64_PATH/bin:$PATH"
     GCC_VERSION=$(aarch64-linux-gnu-gcc --version | grep "(GCC)" | sed 's|.*) ||')
    
-    wget https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/arm-linux-gnueabihf/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf.tar.xz && tar -xf gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf.tar.xz
-    mv gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf gcc32
+    wget https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/arm-linux-gnueabi/gcc-linaro-7.5.0-2019.12-i686_arm-linux-gnueabi.tar.xz && tar -xf gcc-linaro-7.5.0-2019.12-i686_arm-linux-gnueabi.tar.xz
+    mv gcc-linaro-7.5.0-2019.12-i686_arm-linux-gnueabi gcc32
     export KERNEL_CCOMPILE32_PATH="${KERNEL_DIR}/gcc32"
-    export KERNEL_CCOMPILE32="arm-linux-gnueabihf-"
+    export KERNEL_CCOMPILE32="arm-linux-gnueabi-"
     export PATH="$KERNEL_CCOMPILE32_PATH/bin:$PATH"
 
 	elif [ $COMPILER = "weebx-clang" ];
@@ -110,10 +110,10 @@ function cloneTC() {
     export PATH="$KERNEL_CCOMPILE64_PATH/bin:$PATH"
     GCC_VERSION=$(aarch64-linux-gnu-gcc --version | grep "(GCC)" | sed 's|.*) ||')
    
-    wget https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/arm-linux-gnueabihf/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf.tar.xz && tar -xf gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf.tar.xz
-    mv gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf gcc32
+    wget https://releases.linaro.org/components/toolchain/binaries/7.5-2019.12/arm-linux-gnueabi/gcc-linaro-7.5.0-2019.12-i686_arm-linux-gnueabi.tar.xz && tar -xf gcc-linaro-7.5.0-2019.12-i686_arm-linux-gnueabi.tar.xz
+    mv gcc-linaro-7.5.0-2019.12-i686_arm-linux-gnueabi gcc32
     export KERNEL_CCOMPILE32_PATH="${KERNEL_DIR}/gcc32"
-    export KERNEL_CCOMPILE32="arm-linux-gnueabihf-"
+    export KERNEL_CCOMPILE32="arm-linux-gnueabi-"
     export PATH="$KERNEL_CCOMPILE32_PATH/bin:$PATH"
 		
     
